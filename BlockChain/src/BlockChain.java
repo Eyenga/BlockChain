@@ -1,51 +1,65 @@
 import java.util.List;
 import java.util.ArrayList;
+
 // Block Chain should maintain only limited block nodes to satisfy the functions
 // You should not have all the blocks added to the block chain in memory 
 // as it would cause a memory overflow.
 
 public class BlockChain
 {
-
-	// a node in the block-chain can have only one previous node, but may have any
-	// number of nodes >= 0 IMMDEDIATELY after it on the block-chain. The case where
-	// number of nextNode > 1 indicates a fork in the chain.
-	protected class BlockNode
+	/**
+	 * a node in the block-chain can have only one previous node, but may have any
+	 * number of nodes >= 0 IMMDEDIATELY after it on the block-chain. The case where
+	 * number of nextNode > 1 indicates a fork in the chain.
+	 *
+	 */
+	private class BlockNode
 	{
 		protected Block block;
-		protected int height;
+		protected BlockNode parentNode;
+		protected List<BlockNode> childNodes;
 		protected UTXOPool utxos;
-		protected BlockNode previousNode;
-		protected List<BlockNode> nextNode;
-
-		public BlockNode(Block block) {
-
+		protected int blockNumber;
+		
+		public BlockNode(Block blk, BlockNode parent)
+		{
+			block = blk;
+			parentNode = parent;
+			childNodes = new ArrayList<BlockNode>();
+			utxos = new UTXOPool();
 		}
-
 	}
 
 	public static final int CUT_OFF_AGE = 10;
+	BlockNode genesis;
+	TransactionPool txPool;
+	TxHandler txHandler;
+	
 
 	/**
 	 * create an empty block chain with just a genesis block. Assume
 	 * {@code genesisBlock} is a valid block
 	 */
-	public BlockChain(Block genesisBlock) {
+	public BlockChain(Block genesisBlock)
+	{
 		// IMPLEMENT THIS
 	}
 
 	/** Get the maximum height block */
-	public Block getMaxHeightBlock() {
+	public Block getMaxHeightBlock()
+	{
 		// IMPLEMENT THIS
 	}
 
 	/** Get the UTXOPool for mining a new block on top of max height block */
-	public UTXOPool getMaxHeightUTXOPool() {
+	public UTXOPool getMaxHeightUTXOPool()
+	{
 		// IMPLEMENT THIS
 	}
 
 	/** Get the transaction pool to mine a new block */
-	public TransactionPool getTransactionPool() {
+	public TransactionPool getTransactionPool()
+	{
 		// IMPLEMENT THIS
 	}
 
@@ -62,12 +76,14 @@ public class BlockChain
 	 * 
 	 * @return true if block is successfully added
 	 */
-	public boolean addBlock(Block block) {
+	public boolean addBlock(Block block)
+	{
 		// IMPLEMENT THIS
 	}
 
 	/** Add a transaction to the transaction pool */
-	public void addTransaction(Transaction tx) {
+	public void addTransaction(Transaction tx)
+	{
 		// IMPLEMENT THIS
 	}
 }
