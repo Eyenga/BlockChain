@@ -87,7 +87,7 @@ public class BlockChain
 			blockNumber = node.blockNumber;
 			height = node.height;
 		}
-		
+
 	} // End of BlockNode class
 
 	public static final int CUT_OFF_AGE = 10;
@@ -103,15 +103,14 @@ public class BlockChain
 	public BlockChain(Block genesisBlock)
 	{
 		txPool = new TransactionPool();
-		
+
 		Transaction[] coinbase = { genesisBlock.getCoinbase() };
 		Transaction[] tx = genesisBlock.getTransactions().toArray(new Transaction[0]);
 		txHandler = new TxHandler(new UTXOPool());
 		txHandler.handleTxs(coinbase);
 		txHandler.handleTxs(tx);
-		
+
 		genesis = new BlockNode(genesisBlock, null, txHandler.getUTXOPool());
-		
 
 	}
 
@@ -119,6 +118,33 @@ public class BlockChain
 	public Block getMaxHeightBlock()
 	{
 		// IMPLEMENT THIS
+	}
+
+	private BlockNode getMaxHeightBlock(BlockNode head)
+	{
+		BlockNode blockToReturn = head;
+
+		if (!head.childNodes.isEmpty())
+		{
+
+			BlockNode candidate;
+			for (BlockNode child : head.childNodes)
+			{
+				candidate = getMaxHeightBlock(child);
+				if (candidate.height > blockToReturn.height)
+				{
+					blockToReturn = candidate;
+				} else if (candidate.height == blockToReturn.height)
+				{
+					if (candidate.blockNumber < blockToReturn.blockNumber)
+					{
+						blockToReturn = candidate;
+					}
+				}
+			}
+		}
+
+		return blockToReturn;
 	}
 
 	/** Get the UTXOPool for mining a new block on top of max height block */
