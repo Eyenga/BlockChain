@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
-public class TxHandler {
+public class TxHandler
+{
 
 	/**
 	 * Set of current UTXOs to be processed
@@ -12,8 +13,14 @@ public class TxHandler {
 	 * transaction outputs) is {@code utxoPool}. This should make a copy of utxoPool
 	 * by using the UTXOPool(UTXOPool uPool) constructor.
 	 */
-	public TxHandler(UTXOPool utxoPool) {
+	public TxHandler(UTXOPool utxoPool)
+	{
 		ledger = new UTXOPool(utxoPool);
+	}
+
+	public UTXOPool getUTXOPool()
+	{
+		return ledger;
 	}
 
 	/** @formatter:off
