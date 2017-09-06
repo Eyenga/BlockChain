@@ -20,21 +20,81 @@ public class BlockChain
 		protected List<BlockNode> childNodes;
 		protected UTXOPool utxos;
 		protected int blockNumber;
-		
+		protected int height;
+
 		public BlockNode(Block blk, BlockNode parent)
 		{
 			block = blk;
 			parentNode = parent;
 			childNodes = new ArrayList<BlockNode>();
 			utxos = new UTXOPool();
+
+			if (parentNode != null)
+			{
+				blockNumber = parentNode.blockNumber;
+				height = parentNode.height;
+			} else
+			{
+				blockNumber = 1;
+				height = 0;
+			}
 		}
-	}
+
+		public BlockNode(Block blk, BlockNode parent, UTXOPool uPool)
+		{
+			block = blk;
+			parentNode = parent;
+			childNodes = new ArrayList<BlockNode>();
+			utxos = uPool;
+
+			if (parentNode != null)
+			{
+				blockNumber = parentNode.blockNumber;
+				height = parentNode.height;
+			} else
+			{
+				blockNumber = 1;
+				height = 0;
+			}
+		}
+
+		public BlockNode(Block blk, BlockNode parent, int blkNum, int blkHeight)
+		{
+			block = blk;
+			parentNode = parent;
+			childNodes = new ArrayList<BlockNode>();
+			utxos = new UTXOPool();
+			blockNumber = blkNum;
+			height = blkHeight;
+		}
+
+		public BlockNode(Block blk, BlockNode parent, UTXOPool uPool, int blkNum, int blkHeight)
+		{
+			block = blk;
+			parentNode = parent;
+			childNodes = new ArrayList<BlockNode>();
+			utxos = uPool;
+			blockNumber = blkNum;
+			height = blkHeight;
+		}
+
+		public BlockNode(BlockNode node)
+		{
+			block = node.block;
+			parentNode = node.parentNode;
+			childNodes = node.childNodes;
+			utxos = node.utxos;
+			blockNumber = node.blockNumber;
+			height = node.height;
+		}
+		
+	} // End of BlockNode class
 
 	public static final int CUT_OFF_AGE = 10;
+
 	BlockNode genesis;
 	TransactionPool txPool;
 	TxHandler txHandler;
-	
 
 	/**
 	 * create an empty block chain with just a genesis block. Assume
@@ -42,7 +102,13 @@ public class BlockChain
 	 */
 	public BlockChain(Block genesisBlock)
 	{
-		// IMPLEMENT THIS
+		genesis = new BlockNode(genesisBlock, null);
+		txPool = new TransactionPool();
+		txHandler = new TxHandler(new UTXOPool());
+		Transaction[] coinbase = { genesisBlock.getCoinbase() };
+		txHandler.handleTxs(coinbase);
+		genesis.utxos = txHandler.getUTXOPool();
+
 	}
 
 	/** Get the maximum height block */
