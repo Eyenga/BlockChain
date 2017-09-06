@@ -31,11 +31,11 @@ public class BlockChain
 
 			if (parentNode != null)
 			{
-				blockNumber = parentNode.blockNumber;
-				height = parentNode.height;
+				blockNumber = parentNode.blockNumber + 1;
+				height = parentNode.height + 1;
 			} else
 			{
-				blockNumber = 1;
+				blockNumber = 0;
 				height = 0;
 			}
 		}
@@ -49,11 +49,11 @@ public class BlockChain
 
 			if (parentNode != null)
 			{
-				blockNumber = parentNode.blockNumber;
-				height = parentNode.height;
+				blockNumber = parentNode.blockNumber + 1;
+				height = parentNode.height + 1;
 			} else
 			{
-				blockNumber = 1;
+				blockNumber = 0;
 				height = 0;
 			}
 		}
@@ -102,12 +102,16 @@ public class BlockChain
 	 */
 	public BlockChain(Block genesisBlock)
 	{
-		genesis = new BlockNode(genesisBlock, null);
 		txPool = new TransactionPool();
-		txHandler = new TxHandler(new UTXOPool());
+		
 		Transaction[] coinbase = { genesisBlock.getCoinbase() };
+		Transaction[] tx = genesisBlock.getTransactions().toArray(new Transaction[0]);
+		txHandler = new TxHandler(new UTXOPool());
 		txHandler.handleTxs(coinbase);
-		genesis.utxos = txHandler.getUTXOPool();
+		txHandler.handleTxs(tx);
+		
+		genesis = new BlockNode(genesisBlock, null, txHandler.getUTXOPool());
+		
 
 	}
 
