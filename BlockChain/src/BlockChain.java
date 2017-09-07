@@ -117,7 +117,7 @@ public class BlockChain
 	/** Get the maximum height block */
 	public Block getMaxHeightBlock()
 	{
-		return getMaxHeight(genesis).block;
+		return getMaxHeightNode(genesis).block;
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class BlockChain
 	 *            The top node of current chain/sub-chain
 	 * @return The oldest BlockNode at the top height.
 	 */
-	private BlockNode getMaxHeight(BlockNode head)
+	private BlockNode getMaxHeightNode(BlockNode head)
 	{
 		BlockNode blockToReturn = head;
 
@@ -139,7 +139,7 @@ public class BlockChain
 			BlockNode candidate;
 			for (BlockNode child : head.childNodes)
 			{
-				candidate = getMaxHeight(child);
+				candidate = getMaxHeightNode(child);
 				if (candidate.height > blockToReturn.height)
 				{
 					blockToReturn = candidate;
@@ -159,13 +159,13 @@ public class BlockChain
 	/** Get the UTXOPool for mining a new block on top of max height block */
 	public UTXOPool getMaxHeightUTXOPool()
 	{
-		// IMPLEMENT THIS
+		return txHandler.getUTXOPool();
 	}
 
 	/** Get the transaction pool to mine a new block */
 	public TransactionPool getTransactionPool()
 	{
-		// IMPLEMENT THIS
+		return txPool;
 	}
 
 	/**
@@ -189,6 +189,6 @@ public class BlockChain
 	/** Add a transaction to the transaction pool */
 	public void addTransaction(Transaction tx)
 	{
-		// IMPLEMENT THIS
+		txPool.addTransaction(tx);
 	}
 }
