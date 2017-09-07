@@ -183,7 +183,42 @@ public class BlockChain
 	 */
 	public boolean addBlock(Block block)
 	{
-		// IMPLEMENT THIS
+
+	}
+
+	/**
+	 * Returns the node containing the block who's hash value is equal to
+	 * {@code hash} or null if such a block does not exist in the block-chain
+	 * 
+	 * @param head
+	 *            The top node of current chain/sub-chain
+	 * @param hash
+	 *            The hash of the block to find
+	 * @return The BlockNode containing the particular block the was searched for or
+	 *         null if no such block is in the block-chain
+	 */
+	private BlockNode findBlock(BlockNode head, byte[] hash)
+	{
+		BlockNode nodeToReturn = null;
+		ByteArrayWrapper blockHash = new ByteArrayWrapper(hash);
+
+		if (blockHash.equals(new ByteArrayWrapper(head.block.getHash())))
+		{
+			nodeToReturn = head;
+		} else if (!head.childNodes.isEmpty())
+		{
+			for (BlockNode child : head.childNodes)
+			{
+				nodeToReturn = findBlock(child, hash);
+
+				if (nodeToReturn != null)
+				{
+					break;
+				}
+			}
+		}
+
+		return nodeToReturn;
 	}
 
 	/** Add a transaction to the transaction pool */
