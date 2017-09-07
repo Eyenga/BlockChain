@@ -117,10 +117,19 @@ public class BlockChain
 	/** Get the maximum height block */
 	public Block getMaxHeightBlock()
 	{
-		// IMPLEMENT THIS
+		return getMaxHeight(genesis).block;
 	}
 
-	private BlockNode getMaxHeightBlock(BlockNode head)
+	/**
+	 * Returns the node at the greatest height of the chain. If multiple nodes are
+	 * at the max height return the oldest, i.e the one who's block number is the
+	 * lowest
+	 * 
+	 * @param head
+	 *            The top node of current chain/sub-chain
+	 * @return The oldest BlockNode at the top height.
+	 */
+	private BlockNode getMaxHeight(BlockNode head)
 	{
 		BlockNode blockToReturn = head;
 
@@ -130,7 +139,7 @@ public class BlockChain
 			BlockNode candidate;
 			for (BlockNode child : head.childNodes)
 			{
-				candidate = getMaxHeightBlock(child);
+				candidate = getMaxHeight(child);
 				if (candidate.height > blockToReturn.height)
 				{
 					blockToReturn = candidate;
