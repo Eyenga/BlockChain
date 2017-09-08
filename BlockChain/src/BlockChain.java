@@ -36,7 +36,7 @@ public class BlockChain
 			} else
 			{
 				blockNumber = 0;
-				height = 0;
+				height = 1;
 			}
 		}
 
@@ -54,7 +54,7 @@ public class BlockChain
 			} else
 			{
 				blockNumber = 0;
-				height = 0;
+				height = 1;
 			}
 		}
 
@@ -103,15 +103,20 @@ public class BlockChain
 	public BlockChain(Block genesisBlock)
 	{
 		txPool = new TransactionPool();
-
-		Transaction[] coinbase = { genesisBlock.getCoinbase() };
-		Transaction[] tx = genesisBlock.getTransactions().toArray(new Transaction[0]);
-		txHandler = new TxHandler(new UTXOPool());
-		txHandler.handleTxs(coinbase);
-		txHandler.handleTxs(tx);
+		
+		// Process coinbase transaction
+		Transaction coinbase = genesisBlock.getCoinbase();
+		UTXO coinbaseUO = new UTXO(coinbase.getHash(), 0);
+		UTXOPool uPool = new UTXOPool();
+		uPool.addUTXO(coinbaseUO, coinbase.getOutput(0));
+		txHandler = new TxHandler(uPool);
+		
+		// process possible other transaction, albeit genesis block should have no other
+		// transactions
+		Transaction[] txs = genesisBlock.getTransactions().toArray(new Transaction[0]);
+		txHandler.handleTxs(txs);
 
 		genesis = new BlockNode(genesisBlock, null, txHandler.getUTXOPool());
-
 	}
 
 	/** Get the maximum height block */
@@ -159,7 +164,7 @@ public class BlockChain
 	/** Get the UTXOPool for mining a new block on top of max height block */
 	public UTXOPool getMaxHeightUTXOPool()
 	{
-		return txHandler.getUTXOPool();
+		return getMaxHeightBlock(genesis).utxos;
 	}
 
 	/** Get the transaction pool to mine a new block */
@@ -183,19 +188,33 @@ public class BlockChain
 	 */
 	public boolean addBlock(Block block)
 	{
+		// No genesis block can be added after block-chain initialization
 		if (block.getPrevBlockHash() == null) { return false; }
 
+		// find parent block if it is in the block-chain
 		BlockNode parent = findBlock(genesis, block.getPrevBlockHash());
 		if (parent == null) { return false; }
 
+		// parent's height must be within specified range
 		if (parent.height < (getMaxHeightBlock(genesis).height - CUT_OFF_AGE)) { return false; }
 
+		// Process block's transactions
+		Transaction[] txs = block.getTransactions().toArray(new Transaction[0]);
 		TxHandler handler = new TxHandler(parent.utxos);
-		Transaction[] candidates = block.getTransactions().toArray(new Transaction[0]);
-		if (handler.handleTxs(candidates).length != candidates.length) { return false; }
+		if (handler.handleTxs(txs).length != txs.length) { return false; }
 
+		// Process coinbase transaction and Update block-chain
+		Transaction coinbase = block.getCoinbase();
+		UTXO coinbaseUO = new UTXO(coinbase.getHash(), 0);
 		BlockNode blockToAdd = new BlockNode(block, parent, handler.getUTXOPool());
+		blockToAdd.utxos.addUTXO(coinbaseUO, coinbase.getOutput(0));
 		parent.childNodes.add(blockToAdd);
+
+		txHandler = new TxHandler(blockToAdd.utxos);
+		for (Transaction tx : txs)
+		{
+			txPool.removeTransaction(tx.getHash());
+		}
 
 		return true;
 	}
