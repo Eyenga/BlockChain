@@ -117,7 +117,7 @@ public class BlockChain
 	/** Get the maximum height block */
 	public Block getMaxHeightBlock()
 	{
-		return getMaxHeightNode(genesis).block;
+		return getMaxHeightBlock(genesis).block;
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class BlockChain
 	 *            The top node of current chain/sub-chain
 	 * @return The oldest BlockNode at the top height.
 	 */
-	private BlockNode getMaxHeightNode(BlockNode head)
+	private BlockNode getMaxHeightBlock(BlockNode head)
 	{
 		BlockNode blockToReturn = head;
 
@@ -139,7 +139,7 @@ public class BlockChain
 			BlockNode candidate;
 			for (BlockNode child : head.childNodes)
 			{
-				candidate = getMaxHeightNode(child);
+				candidate = getMaxHeightBlock(child);
 				if (candidate.height > blockToReturn.height)
 				{
 					blockToReturn = candidate;
@@ -188,7 +188,7 @@ public class BlockChain
 		BlockNode parent = findBlock(genesis, block.getPrevBlockHash());
 		if (parent == null) { return false; }
 
-		if (parent.height < (getMaxHeightNode(genesis).height - CUT_OFF_AGE)) { return false; }
+		if (parent.height < (getMaxHeightBlock(genesis).height - CUT_OFF_AGE)) { return false; }
 
 		TxHandler handler = new TxHandler(parent.utxos);
 		Transaction[] candidates = block.getTransactions().toArray(new Transaction[0]);
