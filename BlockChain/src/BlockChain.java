@@ -183,7 +183,21 @@ public class BlockChain
 	 */
 	public boolean addBlock(Block block)
 	{
+		if (block.getPrevBlockHash() == null) { return false; }
 
+		BlockNode parent = findBlock(genesis, block.getPrevBlockHash());
+		if (parent == null) { return false; }
+
+		if (parent.height < (getMaxHeightNode(genesis).height - CUT_OFF_AGE)) { return false; }
+
+		TxHandler handler = new TxHandler(parent.utxos);
+		Transaction[] candidates = block.getTransactions().toArray(new Transaction[0]);
+		if (handler.handleTxs(candidates).length != candidates.length) { return false; }
+
+		BlockNode blockToAdd = new BlockNode(block, parent, handler.getUTXOPool());
+		parent.childNodes.add(blockToAdd);
+
+		return true;
 	}
 
 	/**
